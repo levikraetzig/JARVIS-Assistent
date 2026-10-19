@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b11">
+<title>JARVIS · Persönlicher Assistent</title>
+<style>
+:root{color-scheme:dark;--bg:#070b11;--panel:#0d1520;--panel2:#101d2b;--line:#1b3042;--blue:#56c8ff;--blue2:#1689c7;--text:#e8f3fb;--muted:#8298aa;--ok:#71e6bd}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{background:radial-gradient(ellipse at 50% -15%,#102b40 0%,#070b11 53%);min-height:100dvh}
+button,input,textarea{font:inherit}button{cursor:pointer;color:inherit}
+.app{max-width:880px;min-height:100dvh;margin:auto;padding:env(safe-area-inset-top) 18px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;border-bottom:1px solid #193044}
+.brand{display:flex;align-items:center;gap:11px}.mark{width:38px;height:38px;border:1px solid #2d83ad;border-radius:50%;display:grid;place-items:center;color:var(--blue);box-shadow:0 0 22px #1689c733,inset 0 0 18px #1689c722}
+.brand strong{letter-spacing:.18em;font-size:15px}.sub{color:var(--muted);font-size:10px;letter-spacing:.19em;margin-top:4px}
+.status{font-size:10px;letter-spacing:.12em;color:var(--ok);display:flex;align-items:center;gap:7px}.dot{width:6px;height:6px;background:var(--ok);border-radius:50%;box-shadow:0 0 10px #71e6bd}
+main{flex:1;display:flex;flex-direction:column}
+.hero{text-align:center;padding:24px 0 18px}.core-wrap{width:180px;height:180px;margin:0 auto 14px;position:relative;display:grid;place-items:center}
+.core-wrap:before,.core-wrap:after{content:"";position:absolute;border-radius:50%;inset:9px;border:1px solid #24658a;box-shadow:0 0 28px #1689c722,inset 0 0 22px #1689c718;animation:spin 18s linear infinite}
+.core-wrap:after{inset:23px;border-style:dashed;border-color:#24506b;animation-direction:reverse;animation-duration:28s}
+.core{width:92px;height:92px;border-radius:50%;border:1px solid #4fc8ff;background:radial-gradient(circle,#83e0ff 0%,#1689c7 12%,#0b2940 37%,#07101a 68%);box-shadow:0 0 20px #37baff99,0 0 55px #1689c744,inset 0 0 22px #8fe4ff66;position:relative}
+.core:before,.core:after{content:"";position:absolute;background:#78dfff;opacity:.65}.core:before{height:1px;width:138px;left:-24px;top:50%;box-shadow:0 0 8px #56c8ff}.core:after{width:1px;height:138px;top:-24px;left:50%;box-shadow:0 0 8px #56c8ff}
+.core.listening{animation:pulse .8s ease-in-out infinite alternate}
+h1{font-weight:500;font-size:24px;letter-spacing:.02em;margin:0 0 7px}.hero p{color:var(--muted);font-size:13px;margin:0}.eyebrow{font-size:9px;color:#5daed8;letter-spacing:.24em;margin-bottom:10px}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 18px}
+.tile{background:linear-gradient(145deg,#101e2b,#0b121c);border:1px solid var(--line);border-radius:13px;padding:13px 10px;text-align:left;min-height:76px;transition:.2s}
+.tile:active{border-color:#3f9fce;background:#11283a}.tile .ico{color:var(--blue);font-size:18px;margin-bottom:9px}.tile strong{display:block;font-size:12px;font-weight:550}.tile small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.chat{border:1px solid var(--line);background:#0a111aab;border-radius:16px;display:flex;flex-direction:column;min-height:210px;flex:1;overflow:hidden}
+.chat-head{padding:12px 14px;border-bottom:1px solid #182b3a;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#aac1d2;letter-spacing:.08em}
+.chat-head button{background:transparent;border:0;color:var(--muted);font-size:11px}
+.messages{padding:14px;display:flex;flex-direction:column;gap:12px;min-height:120px;max-height:35dvh;overflow:auto}
+.msg{max-width:88%;font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.jarvis{align-self:flex-start;background:#101f2c;border:1px solid #1c3a50;border-top-left-radius:4px}
+.msg.user{align-self:flex-end;background:#12354a;border:1px solid #205c7a;border-top-right-radius:4px}
+.composer{border-top:1px solid #182b3a;padding:10px;display:flex;align-items:flex-end;gap:8px}
+#prompt{flex:1;resize:none;min-height:42px;max-height:110px;background:#0b141e;border:1px solid #21394b;border-radius:12px;color:var(--text);padding:12px;outline:none;font-size:13px}
+#prompt:focus{border-color:#398fbd}.iconbtn,.send{height:42px;min-width:42px;border:1px solid #264b63;background:#102536;border-radius:12px;display:grid;place-items:center;color:var(--blue)}
+.send{background:#147db2;border-color:#248fc2;color:white;font-size:16px}.iconbtn.active{background:#6d2330;border-color:#e56b80;color:#fff}
+footer{font-size:10px;color:#647c8e;text-align:center;padding:12px 0 2px;line-height:1.5}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{to{transform:scale(1.08);filter:brightness(1.3)}}
+@media(min-width:700px){.app{padding-left:28px;padding-right:28px}.hero{padding:26px 0 20px}.core-wrap{width:190px;height:190px}.messages{max-height:310px}.chat{min-height:250px}}
+@media(max-width:380px){.app{padding-left:12px;padding-right:12px}.quick{gap:6px}.tile{padding:10px 8px}.tile strong{font-size:11px}.core-wrap{width:150px;height:150px}.core{width:78px;height:78px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="mark">✧</div><div><strong>J.A.R.V.I.S.</strong><div class="sub">PERSONAL ASSISTANT</div></div></div>
+  <div class="status"><span class="dot"></span> SYSTEM READY</div>
+</header>
+<main>
+<section class="hero">
+  <div class="eyebrow">NEURAL INTERFACE · PROTOTYPE</div>
+  <div class="core-wrap"><div class="core" id="core"></div></div>
+  <h1>Wie kann ich helfen?</h1>
+  <p>Dein Assistent. Deine Oberfläche. Deine Kontrolle.</p>
+</section>
+<section class="quick">
+  <button class="tile" data-prompt="Erstelle eine kurze Aufgabenliste für meinen Tag."><div class="ico">▤</div><strong>Aufgaben</strong><small>Plan organisieren</small></button>
+  <button class="tile" data-prompt="Starte einen 5-Minuten-Timer."><div class="ico">◷</div><strong>Timer</strong><small>Fokus starten</small></button>
+  <button class="tile" data-prompt="Erkläre mir, wie ich JARVIS sicher um weitere Funktionen erweitern kann."><div class="ico">⌘</div><strong>Systemhilfe</strong><small>Funktionen erkunden</small></button>
+</section>
+<section class="chat">
+  <div class="chat-head"><span>◉ &nbsp; KONSOLE / CHAT</span><button id="clear">NEUER CHAT ↺</button></div>
+  <div class="messages" id="messages" aria-live="polite">
+    <div class="msg jarvis">Guten Abend. Ich bin JARVIS – dein Interface ist bereit.\n\nDies ist zunächst ein kostenloser Oberflächen-Prototyp. Für echte KI-Antworten verbinden wir später sicher einen KI-Dienst.</div>
+  </div>
+  <div class="composer">
+    <button class="iconbtn" id="mic" title="Spracheingabe" aria-label="Spracheingabe">♩</button>
+    <textarea id="prompt" rows="1" placeholder="Nachricht an JARVIS …"></textarea>
+    <button class="send" id="send" aria-label="Senden">↑</button>
+  </div>
+</section>
+</main>
+<footer>PROTOTYP · Keine Verbindung zu einem KI-Server · Sprachfunktionen hängen von Safari und Geräteberechtigungen ab.</footer>
+</div>
+<script>
+const messages=document.getElementById('messages'), promptBox=document.getElementById('prompt'), core=document.getElementById('core'), mic=document.getElementById('mic');
+function add(text,who){const el=document.createElement('div');el.className='msg '+who;el.textContent=text;messages.appendChild(el);messages.scrollTop=messages.scrollHeight;return el}
+function speak(text){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='de-DE';u.rate=.96;window.speechSynthesis.speak(u)}
+function respond(q){
+ const t=q.toLowerCase();let answer;
+ if(t.includes('timer')){answer='Der Timer-Befehl ist in diesem Prototyp noch nicht mit einem echten Timer verbunden. Das können wir als Nächstes ergänzen.'}
+ else if(t.includes('aufgaben')||t.includes('tag')){answer='Vorschlag für deine Tagesplanung:\\n1. Wichtigste Aufgabe festlegen\\n2. Aufgaben in kleine Schritte teilen\\n3. Kurze Pause einplanen\\n\\nHinweis: In dieser Demo sind Antworten noch nicht KI-generiert.'}
+ else if(t.includes('sicher')||t.includes('funktion')){answer='Für die echte KI-Verbindung verwenden wir später einen Server. Ein geheimer API-Schlüssel darf niemals im Browsercode stehen. Zunächst testen wir die Oberfläche kostenlos.'}
+ else{answer='Nachricht empfangen. Die Chat-Oberfläche funktioniert, aber echte KI-Antworten sind noch nicht verbunden. Im nächsten Schritt verbinden wir einen KI-Dienst über einen sicheren Server.'}
+ add(answer,'jarvis');
+}
+function send(){const q=promptBox.value.trim();if(!q)return;add(q,'user');promptBox.value='';promptBox.style.height='auto';setTimeout(()=>respond(q),250)}
+document.getElementById('send').addEventListener('click',send);
+promptBox.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+promptBox.addEventListener('input',()=>{promptBox.style.height='auto';promptBox.style.height=Math.min(promptBox.scrollHeight,110)+'px'});
+document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{promptBox.value=b.dataset.prompt;send()}));
+document.getElementById('clear').addEventListener('click',()=>{messages.replaceChildren();add('Neuer Chat gestartet. Was soll ich für dich tun?','jarvis')});
+mic.addEventListener('click',()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){add('Spracherkennung ist in diesem Browser nicht verfügbar. Du kannst Nachrichten weiterhin eintippen.','jarvis');return}
+ const rec=new SR();rec.lang='de-DE';rec.interimResults=false;rec.maxAlternatives=1;
+ mic.classList.add('active');core.classList.add('listening');
+ rec.onresult=e=>{promptBox.value=e.results[0][0].transcript;send()};
+ rec.onerror=()=>add('Mikrofonzugriff oder Spracherkennung ist nicht verfügbar. Prüfe die Safari-Berechtigungen.','jarvis');
+ rec.onend=()=>{mic.classList.remove('active');core.classList.remove('listening')};
+ try{rec.start()}catch(e){mic.classList.remove('active');core.classList.remove('listening');add('Spracherkennung konnte nicht gestartet werden.','jarvis')}
+});
+</script>
+</body>
+</html>
